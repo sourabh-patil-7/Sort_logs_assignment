@@ -29,16 +29,13 @@ class LogEntry {
     }
 
     private LocalDateTime parseDateTime(String date, String time) {
-
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss 'GMT'XXX");
-
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
 
         LocalDate localDate = LocalDate.parse(date, dateFormatter);
-        LocalTime localTime = LocalTime.parse(time.split(" ")[0], timeFormatter); // Split to remove timezone
-        String timezone = time.split(" ")[1]; // Extract timezone
-
+        LocalTime localTime = LocalTime.parse(time.split(" ")[0], timeFormatter);
+        String timezone = time.split(" ")[1];
 
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(
                 localDate.toString() + "T" + localTime.toString() + timezone,
@@ -52,35 +49,16 @@ class LogEntry {
 public class LogProcessor {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        List<LogEntry> logs = new ArrayList<>();
-
-        System.out.println("Enter log entries. Type 'done' when you are finished.");
-
-        while (true) {
-            System.out.print("Enter service name: ");
-            String serviceName = scanner.nextLine().trim();
-            if ("done".equalsIgnoreCase(serviceName)) {
-                break;
-            }
-
-            System.out.print("Enter log type (e.g., INFO, ERROR, DEBUG): ");
-            String logType = scanner.nextLine().trim();
-
-            System.out.print("Enter date (e.g., Wed Jul 25 2023): ");
-            String date = scanner.nextLine().trim();
-
-            System.out.print("Enter time with timezone (e.g., 14:00:00 GMT+0530): ");
-            String time = scanner.nextLine().trim();
-
-            logs.add(new LogEntry(serviceName, logType, date, time));
-        }
-
-        scanner.close();
-
+        List<LogEntry> logs = Arrays.asList(
+                new LogEntry("micro-service-m1", "INFO", "Wed Jul 25 2023", "14:00:00 GMT+0530"),
+                new LogEntry("micro-service-n1", "ERROR", "Wed Jul 25 2023", "14:10:00 GMT+0530"),
+                new LogEntry("micro-service-o1", "DEBUG", "Wed Jul 25 2023", "14:20:00 GMT+0530"),
+                new LogEntry("micro-service-n1", "ERROR", "Wed Jul 25 2023", "14:30:00 GMT+0530"),
+                new LogEntry("micro-service-o1", "INFO", "Wed Jul 25 2023", "14:40:00 GMT+0530"),
+                new LogEntry("micro-service-p1", "DEBUG", "Wed Jul 25 2023", "14:50:00 GMT+0530")
+        );
 
         logs.sort(Comparator.comparing(LogEntry::getDateTime).reversed());
-
 
         System.out.println("\nSorted Logs:");
         System.out.println("[");
