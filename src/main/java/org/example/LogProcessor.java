@@ -1,5 +1,9 @@
 package org.example;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -8,10 +12,10 @@ class LogEntry {
     private String logType;
     private LocalDateTime dateTime;
 
-    public LogEntry(String serviceName, String logType, String date, String time) {
+    public LogEntry(String serviceName, String logType, String date, String time, String timezone) {
         this.serviceName = serviceName;
         this.logType = logType;
-        this.dateTime = parseDateTime(date, time);
+        this.dateTime = parseDateTime(date, time, timezone);
     }
 
     public LocalDateTime getDateTime() {
@@ -28,18 +32,16 @@ class LogEntry {
         );
     }
 
-    private LocalDateTime parseDateTime(String date, String time) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy");
+    private LocalDateTime parseDateTime(String date, String time, String timezone) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
 
         LocalDate localDate = LocalDate.parse(date, dateFormatter);
-        LocalTime localTime = LocalTime.parse(time.split(" ")[0], timeFormatter);
-        String timezone = time.split(" ")[1];
+        LocalTime localTime = LocalTime.parse(time, timeFormatter);
 
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse(
-                localDate.toString() + "T" + localTime.toString() + timezone,
-                dateTimeFormatter
+        OffsetDateTime offsetDateTime = OffsetDateTime.of(
+                localDate, localTime, ZoneOffset.UTC
         );
 
         return offsetDateTime.toLocalDateTime();
@@ -50,12 +52,12 @@ public class LogProcessor {
 
     public static void main(String[] args) {
         List<LogEntry> logs = Arrays.asList(
-                new LogEntry("micro-service-m1", "INFO", "Wed Jul 25 2023", "14:00:00 GMT+0530"),
-                new LogEntry("micro-service-n1", "ERROR", "Wed Jul 25 2023", "14:10:00 GMT+0530"),
-                new LogEntry("micro-service-o1", "DEBUG", "Wed Jul 25 2023", "14:20:00 GMT+0530"),
-                new LogEntry("micro-service-n1", "ERROR", "Wed Jul 25 2023", "14:30:00 GMT+0530"),
-                new LogEntry("micro-service-o1", "INFO", "Wed Jul 25 2023", "14:40:00 GMT+0530"),
-                new LogEntry("micro-service-p1", "DEBUG", "Wed Jul 25 2023", "14:50:00 GMT+0530")
+                new LogEntry("micro-service-m1", "INFO", "2023-07-25", "14:00:00", "Z"),
+                new LogEntry("micro-service-n1", "ERROR", "2023-07-25", "14:10:00", "Z"),
+                new LogEntry("micro-service-o1", "DEBUG", "2023-07-25", "14:20:00", "Z"),
+                new LogEntry("micro-service-n1", "ERROR", "2023-07-25", "14:30:00", "Z"),
+                new LogEntry("micro-service-o1", "INFO", "2023-07-25", "14:40:00", "Z"),
+                new LogEntry("micro-service-p1", "DEBUG", "2023-07-25", "14:50:00", "Z")
         );
 
         logs.sort(Comparator.comparing(LogEntry::getDateTime).reversed());
